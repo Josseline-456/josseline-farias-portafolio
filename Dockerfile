@@ -1,7 +1,7 @@
-FROM php:8.2-apache
+﻿FROM php:8.2-apache
 
-RUN apt-get update && apt-get install -y libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql \
+RUN apt-get update && apt-get install -y libpq-dev libzip-dev unzip \
+    && docker-php-ext-install pdo pdo_pgsql zip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN a2enmod rewrite
