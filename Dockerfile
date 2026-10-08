@@ -59,4 +59,4 @@ RUN printf '<Directory /var/www/html/public>\n\
 EXPOSE 80
 
 # Migraciones y arranque de Apache
-CMD ["sh", "-c", "php artisan migrate --force && apache2-foreground"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && apache2-foreground"]
