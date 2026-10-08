@@ -36,12 +36,16 @@ RUN npm run build
 # Directorios necesarios para Laravel
 RUN mkdir -p \
     /var/www/html/storage/framework/views \
-    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/framework/cache/data \
     /var/www/html/storage/framework/sessions \
     /var/www/html/bootstrap/cache \
     && chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache
+
+# Configuración Laravel
+ENV CACHE_STORE=file
+ENV SESSION_DRIVER=file
 
 # Configurar Apache para Laravel
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' \
@@ -54,3 +58,5 @@ RUN printf '<Directory /var/www/html/public>\n\
 
 EXPOSE 80
 
+# Migraciones y arranque de Apache
+CMD ["sh", "-c", "php artisan migrate --force && apache2-foreground"]
