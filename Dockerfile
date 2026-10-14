@@ -1,3 +1,4 @@
+
 FROM php:8.2-apache
 
 # Dependencias del sistema
@@ -15,7 +16,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && npm --version \
     && node --version
 
-# Apache
+# Habilitar mod_rewrite de Apache
 RUN a2enmod rewrite
 
 WORKDIR /var/www/html
@@ -29,19 +30,23 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Dependencias PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Dependencias y build de Vite
+# Dependencias y compilación de Vite
 RUN npm install
 RUN npm run build
 
 # Directorios necesarios para Laravel
+# Configurar almacenamiento público de imágenes
 RUN mkdir -p \
+    /var/www/html/storage/app/public/proyectos \
     /var/www/html/storage/framework/views \
     /var/www/html/storage/framework/cache/data \
     /var/www/html/storage/framework/sessions \
     /var/www/html/bootstrap/cache \
+    && rm -rf /var/www/html/public/storage \
+    && ln -s ../storage/app/public /var/www/html/public/storage \
     && chown -R www-data:www-data \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+        /var/www/html/storage \
+        /var/www/html/bootstrap/cache
 
 # Configuración Laravel
 ENV CACHE_STORE=file
@@ -60,3 +65,4 @@ EXPOSE 80
 
 # Migraciones y arranque de Apache
 CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && apache2-foreground"]
+
