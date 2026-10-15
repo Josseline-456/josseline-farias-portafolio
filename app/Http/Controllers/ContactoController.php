@@ -22,7 +22,15 @@ class ContactoController extends Controller
             'mensaje.required' => 'El mensaje es obligatorio.',
         ]);
 
-        $toAddress = config('mail.from.address', env('MAIL_FROM_ADDRESS'));
+        $toAddress = config('mail.contact_to');
+
+        if (!$toAddress) {
+            Log::error('No está configurado MAIL_CONTACT_TO.');
+
+            return redirect('/contacto')->withErrors([
+                'email' => 'El correo de contacto no está configurado.',
+            ]);
+        }
 
         try {
             Log::info('Intento de envío de contacto', [
@@ -47,11 +55,10 @@ class ContactoController extends Controller
 
             Log::error('Error al enviar correo de contacto', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect('/contacto')->withErrors([
-                'email' => 'No se pudo enviar el mensaje en este momento. Error: ' . $e->getMessage(),
+                'email' => 'No se pudo enviar el mensaje. Revisa la configuración del correo.',
             ]);
         }
 
